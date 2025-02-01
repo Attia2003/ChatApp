@@ -7,6 +7,10 @@
 
 
     <data>
+        <import type="android.view.View"/>
+        <variable
+            name="vmlogin"
+            type="com.example.chatapptest.ui.login.LoginViewModel" />
 
     </data>
 
@@ -33,12 +37,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                app:Binder="@{vmlogin.userNameEror}"
                 android:id="@+id/input_Name_label">
                 <EditText
                     android:id="@+id/User_Name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter ur Mail "
+                    android:text="@={vmlogin.userName}"
+                    android:hint="Enter ur UserEmail "
                     android:inputType="text"/>
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -47,34 +53,69 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                app:Binder="@{vmlogin.userPasswpordEror}"
                 android:id="@+id/input_password_label">
                 <EditText
                     android:id="@+id/User_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Enter ur Password "
-                    android:inputType="text"/>
+                    android:text="@={vmlogin.userPassword}"
+                    android:inputType="numberPassword"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Create an ACC?"
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:id="@+id/create_accountacc"-->
+<!--                android:text="Create an Account"-->
+<!--                android:layout_marginBottom="22dp"-->
+<!--                android:onClick="@{() -> vmlogin.GotoRegister()}"-->
+<!--                />-->
 
-                android:id="@+id/create_account"
-                android:layout_marginTop="8dp"
-                android:textStyle="italic"
-                android:textSize="15dp"/>
-
-            <Button
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#3598DB"
-                android:layout_marginTop="17dp"
-                android:text="Log In"
-                android:textSize="22dp"
-                />
+                android:onClick="@{() ->vmlogin.LoginUser()}"
+                android:paddingVertical="16dp"
+                android:paddingHorizontal="31dp"
+                android:background="#3598DB"
+                android:drawableEnd="@drawable/ic_next"
+                android:id="@+id/registerbutton_layout_constraint"
+                >
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Login"
+                    android:textAllCaps="false"
+                    android:textSize="18dp"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:paddingEnd="8dp"
+                    />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_next"
+                    app:layout_constraintEnd_toEndOf="@id/registerbutton_layout_constraint"
+                    android:id="@+id/icon_next"
+                    android:visibility="@{vmlogin.isLoading?View.GONE:View.VISIBLE}"
+                    app:layout_constraintTop_toTopOf="@id/registerbutton_layout_constraint"
+                    app:layout_constraintBottom_toBottomOf="@id/registerbutton_layout_constraint"
+                    />
+                <ProgressBar
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:visibility="@{vmlogin.isLoading?View.VISIBLE:View.GONE}"
+                    app:layout_constraintEnd_toEndOf="@id/registerbutton_layout_constraint"
+                    app:layout_constraintTop_toTopOf="@id/registerbutton_layout_constraint"
+                    app:layout_constraintBottom_toBottomOf="@id/registerbutton_layout_constraint"/>
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
 
 

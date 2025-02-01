@@ -7,13 +7,17 @@
     tools:context=".ui.register.RegisterActivity">
 
     <data>
+        <import type="android.view.View"/>
+        <variable
+            name="vm"
+            type="com.example.chatapptest.ui.register.RegisterViewModel" />
 
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp"
+        android:padding="20dp"
 
         >
 
@@ -35,11 +39,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                app:Binder="@{vm.UserNameEror}"
                 android:id="@+id/input_Name_label">
                 <EditText
                     android:id="@+id/User_Name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="@={vm.UserName}"
                     android:hint="Enter ur Name "
                     android:inputType="text"/>
 
@@ -48,11 +54,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                app:Binder="@{vm.userEmailEror}"
                 android:id="@+id/input_Email_label">
                 <EditText
                     android:id="@+id/User_Email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:text="@={vm.UserEmail}"
+
                     android:hint="Enter ur Email "
                     android:inputType="textEmailAddress"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -60,17 +69,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                app:Binder="@{vm.UserPasswordEror}"
                 android:id="@+id/input_Paassword_label">
                 <EditText
                     android:id="@+id/User_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Enter ur password "
+                    android:minEms="6"
+                    android:text="@={vm.UserPassword}"
                     android:inputType="numberPassword"/>
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:Binder="@{vm.UserPasswordConfirmEror}"
                 android:layout_marginBottom="8dp"
                 android:id="@+id/input_Paassword_confirm_label">
                 <EditText
@@ -78,23 +91,28 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Password Confirm"
+                    android:text="@={vm.UserPasswordConfirm}"
+                    android:minEms="6"
                     android:inputType="numberPassword"/>
             </com.google.android.material.textfield.TextInputLayout>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Already Have Account?"
-                android:id="@+id/already_have_account"
-                android:layout_marginTop="8dp"
-                android:textStyle="italic"
-                android:textSize="15dp"/>
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Already Have Account?"-->
+<!--                android:id="@+id/already_have_account"-->
+<!--                android:layout_marginTop="8dp"-->
+<!--                android:textStyle="italic"-->
+<!--                android:textSize="15dp"/>-->
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:onClick="@{() ->vm.registerUser()}"
                 android:paddingVertical="16dp"
                 android:paddingHorizontal="31dp"
                 android:background="#3598DB"
+                android:drawableEnd="@drawable/ic_next"
+                android:id="@+id/registerbutton_layout_constraint"
                 >
                 <TextView
                     android:layout_width="match_parent"
@@ -108,6 +126,24 @@
                     android:paddingEnd="8dp"
                     android:id="@+id/create_account"
                     />
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_next"
+                    app:layout_constraintEnd_toEndOf="@id/registerbutton_layout_constraint"
+                    android:id="@+id/icon_next"
+                    android:visibility="@{vm.isLoading?View.GONE:View.VISIBLE}"
+                    app:layout_constraintTop_toTopOf="@id/registerbutton_layout_constraint"
+                    app:layout_constraintBottom_toBottomOf="@id/registerbutton_layout_constraint"
+                    />
+                <ProgressBar
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:visibility="@{vm.isLoading?View.VISIBLE:View.GONE}"
+                    app:layout_constraintEnd_toEndOf="@id/registerbutton_layout_constraint"
+                    app:layout_constraintTop_toTopOf="@id/registerbutton_layout_constraint"
+                    app:layout_constraintBottom_toBottomOf="@id/registerbutton_layout_constraint"/>
+
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
