@@ -4,9 +4,12 @@ import android.content.Intent
 import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.chatapptest.ui.Eror.ViewEror
 import com.example.chatapptest.ui.register.RegisterActivity
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class LoginViewModel:ViewModel() {
     val isLoading = MutableLiveData<Boolean>()
@@ -28,24 +31,28 @@ class LoginViewModel:ViewModel() {
         if (!isValidate())
             return
         isLoading.value = true
-        auth.createUserWithEmailAndPassword(UserName.value!!, UserPassword.value!!)
-            .addOnCompleteListener {
+        viewModelScope.launch {
+            if (checkIfEmailExists(UserName.value!!)) {
                 isLoading.value = false
-                if (it.isSuccessful) {
-                    ViewEror(
-                        message = it.result.user?.uid
-                    )
-                } else {
-                    //Show Eror
-                    viewLiveEror.postValue(
-                        ViewEror(
-                            message = it.exception?.localizedMessage
-                        )
-                    )
-                }
+                viewLiveEror.postValue(
+                    ViewEror(message = "Email already registered. Please login."))
+            } else {
 
+                auth.createUserWithEmailAndPassword(UserName.value!!, UserPassword.value!!)
+                    .addOnCompleteListener { task ->
+                        isLoading.value = false
+                        if (task.isSuccessful) {
+                            viewLiveEror.postValue(
+                                ViewEror(message = "Registration successful. UID: ${task.result?.user?.uid}"))
+                        } else {
+                            viewLiveEror.postValue(
+                                ViewEror(message = task.exception?.localizedMessage))
+                        }
+                    }
             }
+        }
     }
+
 
     fun isValidate(): Boolean {
         var isValid = true
@@ -68,4 +75,13 @@ class LoginViewModel:ViewModel() {
 
     }
 
+    suspend fun checkIfEmailExists(email: String): Boolean {
+        return try {
+            val result = FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email).await()
+            !result.signInMethods.isNullOrEmpty()
+        } catch (e: Exception) {
+            false
+        }
+    }
 }
+
