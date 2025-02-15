@@ -1,5 +1,6 @@
 package com.example.chatapptest.ui.register
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -7,9 +8,11 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import com.example.chatapptest.MainActivity
 import com.example.chatapptest.R
 import com.example.chatapptest.databinding.ActivityRegisterBinding
 import com.example.chatapptest.ui.Eror.showmessage
+import com.example.chatapptest.ui.login.LoginActivity
 
 class RegisterActivity : AppCompatActivity() {
     private var viewbinding : ActivityRegisterBinding? = null
@@ -31,14 +34,40 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun subscribeToLiveData() {
-        viewmodel.viewLiveEror.observe(this){
-            showmessage(it.message?:"something went wrong"
-            , posActionName = "try again",
-                posAction = {dialog,i->
-                    dialog.dismiss()
-                }
-                )
+        viewmodel.MessageLiveData.observe(this){
+            showmessage(it.message ?: "something went wrong",
+                posActionName = "Okee",
+                posAction = it.posActionClick,
+                negActionName = it.negActionName,
+                negAction = it.negActionClick,
+                isCancelable = it.isCancelable)
         }
+        viewmodel.events.observe(this){
+            when(it){
+                ResgisterViewEvent.NavigateToHome->{
+                        navigateToHome()
+
+                    }
+                ResgisterViewEvent.NavigatetoLogin->{
+                        navigateToLogin()
+
+                    }
+            }
+
+        }
+    }
+
+    private fun navigateToLogin() {
+      val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+        finish()
+
+    }
+
+    private fun navigateToHome() {
+       val intent = Intent(this,MainActivity::class.java)
+        startActivity(intent)
+          finish()
     }
 
     fun initview(){

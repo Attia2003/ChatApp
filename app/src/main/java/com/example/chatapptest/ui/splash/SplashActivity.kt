@@ -28,7 +28,7 @@ class SplashActivity : AppCompatActivity() {
     private fun startsplash(){
         lifecycleScope.launch {
             delay(3000)
-            val intent = Intent(this@SplashActivity, LoginActivity::class.java)
+            val intent = Intent(this@SplashActivity, RegisterActivity::class.java)
             startActivity(intent)
             finish()
         }

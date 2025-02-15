@@ -5,63 +5,61 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chatapptest.SessionProvider
+import com.example.chatapptest.database.firestore.FireStoreUserDao
+import com.example.chatapptest.database.firestore.FireStoreUserDao.getusercollectiion
+import com.example.chatapptest.database.model.UserData
 import com.example.chatapptest.ui.Eror.ViewEror
 import com.example.chatapptest.ui.register.RegisterActivity
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class LoginViewModel:ViewModel() {
     val isLoading = MutableLiveData<Boolean>()
 
-    val viewLiveEror = MutableLiveData<ViewEror>()
+    val MessageLiveData = MutableLiveData<ViewEror>()
 
     //LiveDataErorUser
-    val UserNameEror = MutableLiveData<String?>()
+    val UserEmailEror = MutableLiveData<String?>()
     val UserPasswpordEror = MutableLiveData<String?>()
 
 
     //liveDataUser
-    val UserName = MutableLiveData<String>()
+    val UserEmail = MutableLiveData<String>()
     val UserPassword = MutableLiveData<String>()
+
+    val events = MutableLiveData<LoginViewEvent>()
 
     val auth = FirebaseAuth.getInstance()
 
     fun LoginUser() {
         if (!isValidate())
-            return
-        isLoading.value = true
-        viewModelScope.launch {
-            if (checkIfEmailExists(UserName.value!!)) {
-                isLoading.value = false
-                viewLiveEror.postValue(
-                    ViewEror(message = "Email already registered. Please login."))
-            } else {
 
-                auth.createUserWithEmailAndPassword(UserName.value!!, UserPassword.value!!)
-                    .addOnCompleteListener { task ->
-                        isLoading.value = false
-                        if (task.isSuccessful) {
-                            viewLiveEror.postValue(
-                                ViewEror(message = "Registration successful. UID: ${task.result?.user?.uid}"))
+            return
+                isLoading.value = true
+                auth.createUserWithEmailAndPassword(
+                    UserEmail.value!!, UserPassword.value!!)
+                    .addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            GetUserFromFireStore(it.result.user?.uid)
                         } else {
-                            viewLiveEror.postValue(
-                                ViewEror(message = task.exception?.localizedMessage))
+                            MessageLiveData.postValue(
+                                ViewEror(message = it.exception?.localizedMessage))
                         }
                     }
             }
-        }
-    }
-
 
     fun isValidate(): Boolean {
         var isValid = true
 
-        if (UserName.value.isNullOrEmpty()) {
-            UserNameEror.postValue("Enter User Name")
+        if (UserEmail.value.isNullOrEmpty()) {
+            UserEmailEror.postValue("Enter User Name")
             isValid = false
         } else {
-            UserNameEror.postValue(null)
+            UserEmailEror.postValue(null)
         }
         if (UserPassword.value.isNullOrEmpty()) {
             UserPasswpordEror.postValue("Enter User Password")
@@ -75,13 +73,41 @@ class LoginViewModel:ViewModel() {
 
     }
 
-    suspend fun checkIfEmailExists(email: String): Boolean {
-        return try {
-            val result = FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email).await()
-            !result.signInMethods.isNullOrEmpty()
-        } catch (e: Exception) {
-            false
+    fun GetUserFromFireStore(uid:String?){
+    FireStoreUserDao.getuserbyid(uid){
+        isLoading.value = false
+        if (it.isSuccessful){
+            val user = it.result.toObject(UserData::class.java)
+            SessionProvider.user = user
+            MessageLiveData.postValue(
+                ViewEror(
+                    message = "Login Success",
+                    psoActionName = "okee",
+                    posActionClick ={
+                        events.postValue(LoginViewEvent.NavigateToHome)
+
+                    },isCancelable = false)
+            )
+
+
+
+        }else{
+            isLoading.value = false
+            MessageLiveData.postValue(
+                ViewEror(message = it.exception?.localizedMessage))
         }
     }
+    }
+
+    fun navigateToRegister(){
+        events.postValue(LoginViewEvent.NavigateToRegister)
+    }
+
+
+
+
+
+
+
 }
 

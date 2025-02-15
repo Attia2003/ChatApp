@@ -37,13 +37,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                app:Binder="@{vmlogin.userNameEror}"
+                app:Binder="@{vmlogin.userEmailEror}"
                 android:id="@+id/input_Name_label">
                 <EditText
                     android:id="@+id/User_Name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@={vmlogin.userName}"
+                    android:text="@={vmlogin.userEmail}"
                     android:hint="Enter ur UserEmail "
                     android:inputType="text"/>
 
@@ -65,14 +65,14 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:id="@+id/create_accountacc"-->
-<!--                android:text="Create an Account"-->
-<!--                android:layout_marginBottom="22dp"-->
-<!--                android:onClick="@{() -> vmlogin.GotoRegister()}"-->
-<!--                />-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/create_accountacc"
+                android:text="Create an Account"
+                android:layout_marginBottom="22dp"
+                android:onClick="@{() -> vmlogin.navigateToRegister()}"
+                />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"

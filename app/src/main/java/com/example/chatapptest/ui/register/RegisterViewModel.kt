@@ -2,16 +2,22 @@ package com.example.chatapptest.ui.register
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.chatapptest.SessionProvider
+import com.example.chatapptest.database.firestore.FireStoreUserDao
+import com.example.chatapptest.database.model.UserData
 import com.example.chatapptest.ui.Eror.ViewEror
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class RegisterViewModel : ViewModel() {
     val isLoading = MutableLiveData<Boolean>()
 
-    val viewLiveEror = MutableLiveData<ViewEror>()
+    val MessageLiveData = MutableLiveData<ViewEror>()
 
     //liveDataForText
     val UserName = MutableLiveData<String>()
@@ -25,31 +31,33 @@ class RegisterViewModel : ViewModel() {
     val UserPasswordEror = MutableLiveData<String?>()
     val UserPasswordConfirmEror = MutableLiveData<String?>()
 
+    val events = MutableLiveData<ResgisterViewEvent>()
 
     val auth = FirebaseAuth.getInstance()
 
     fun registerUser() {
         if (!ValidForm())
-            return
-        isLoading.value = true
-        auth.createUserWithEmailAndPassword(UserEmail.value!!, UserPassword.value!!)
-            .addOnCompleteListener {
-                isLoading.value = false
-                if (it.isSuccessful) {
-                    ViewEror(
-                        message = it.result.user?.uid
-                    )
-                } else {
-                    //Show Eror
-                    viewLiveEror.postValue(
-                        ViewEror(
-                            message = it.exception?.localizedMessage
-                        )
-                    )
-                }
 
+            return
+                 isLoading.value = true
+
+                 auth.createUserWithEmailAndPassword(UserEmail.value!!, UserPassword.value!!)
+                    .addOnCompleteListener {
+                        if (it.isSuccessful) {
+                            InsetInFireStore(it.result.user?.uid)
+
+//                            viewLiveEror.postValue(
+//                                ViewEror(message = "Registration successful. UID: ${task.result?.user?.uid}"))
+                        } else {
+                            isLoading.value = false
+                            MessageLiveData.postValue(
+                                ViewEror(message = it.exception?.localizedMessage)
+                            )
+                        }
+                    }
             }
-    }
+
+
 
 
     fun ValidForm(): Boolean {
@@ -83,6 +91,48 @@ class RegisterViewModel : ViewModel() {
         return isValid
 
     }
+
+
+
+    fun InsetInFireStore(uid:String?){
+        val user = UserData(
+            id = uid,
+            userName = UserName.value,
+            email = UserPassword.value
+        )
+        FireStoreUserDao.createuser(
+            user
+        ){
+            isLoading.value = false
+            if(it.isSuccessful){
+                MessageLiveData.postValue(
+                    ViewEror(
+                        message = "Registration Success",
+                        psoActionName = "okee",
+                        posActionClick =
+                        {
+                            SessionProvider.user = user
+                            events.postValue(ResgisterViewEvent.NavigateToHome)
+
+                            //Save User
+                            //go to login activity
+                        },isCancelable = false
+
+                    )
+                )
+            }else{
+                MessageLiveData.postValue(
+                    ViewEror(message = it.exception?.localizedMessage))
+
+            }
+
+        }
+
+
+    }
+
+    fun navigateToLogin(){
+        events.postValue(ResgisterViewEvent.NavigatetoLogin)
+    }
+
 }
-
-
