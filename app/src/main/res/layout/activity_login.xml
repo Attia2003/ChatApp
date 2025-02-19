@@ -80,7 +80,7 @@
                 android:onClick="@{() ->vmlogin.LoginUser()}"
                 android:paddingVertical="16dp"
                 android:paddingHorizontal="31dp"
-                android:background="#3598DB"
+                android:background="#20A090"
                 android:drawableEnd="@drawable/ic_next"
                 android:id="@+id/registerbutton_layout_constraint"
                 >

@@ -2,14 +2,13 @@
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Message
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import com.example.chatapptest.MainActivity
+import com.example.chatapptest.ui.home.MainActivity
 import com.example.chatapptest.R
 import com.example.chatapptest.databinding.ActivityLoginBinding
 import com.example.chatapptest.ui.Eror.showmessage
@@ -58,7 +57,7 @@ import com.example.chatapptest.ui.register.RegisterActivity
      }
 
      private fun navigateToHome() {
-         val intent = Intent(this,MainActivity::class.java)
+         val intent = Intent(this, MainActivity::class.java)
          startActivity(intent)
          finish()
      }

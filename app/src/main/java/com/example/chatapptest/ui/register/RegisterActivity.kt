@@ -8,7 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
-import com.example.chatapptest.MainActivity
+import com.example.chatapptest.ui.home.MainActivity
 import com.example.chatapptest.R
 import com.example.chatapptest.databinding.ActivityRegisterBinding
 import com.example.chatapptest.ui.Eror.showmessage
@@ -65,7 +65,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun navigateToHome() {
-       val intent = Intent(this,MainActivity::class.java)
+       val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
           finish()
     }

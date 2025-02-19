@@ -60,7 +60,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@={vm.UserEmail}"
-
                     android:hint="Enter ur Email "
                     android:inputType="textEmailAddress"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -111,7 +110,7 @@
                 android:onClick="@{() ->vm.registerUser()}"
                 android:paddingVertical="16dp"
                 android:paddingHorizontal="31dp"
-                android:background="#3598DB"
+                android:background="#20A090"
                 android:drawableEnd="@drawable/ic_next"
                 android:id="@+id/registerbutton_layout_constraint"
                 >
@@ -147,41 +146,6 @@
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/register_layout_linear1"
-            app:layout_constraintStart_toStartOf="parent"
-            android:paddingTop="25dp"
-            android:orientation="horizontal"
-            android:gravity="center"
-            >
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#000000" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="OR"
-                android:textColor="#000000"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp"
-
-                android:textSize="16sp" />
-
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#000000" />
-
 
 
         </LinearLayout>
