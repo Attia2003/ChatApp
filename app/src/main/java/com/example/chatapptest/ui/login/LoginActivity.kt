@@ -20,6 +20,9 @@ import com.example.chatapptest.ui.register.RegisterActivity
      override fun onCreate(savedInstanceState: Bundle?) {
          super.onCreate(savedInstanceState)
          enableEdgeToEdge()
+         viewbinding =
+                 ActivityLoginBinding.inflate(layoutInflater)
+         setContentView(viewbinding.root)
          initView()
          subscribeToLiveData()
          ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->

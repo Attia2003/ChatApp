@@ -37,10 +37,9 @@ class LoginViewModel:ViewModel() {
 
     fun LoginUser() {
         if (!isValidate())
-
             return
                 isLoading.value = true
-                auth.createUserWithEmailAndPassword(
+                auth.signInWithEmailAndPassword(
                     UserEmail.value!!, UserPassword.value!!)
                     .addOnCompleteListener {
                         if (it.isSuccessful) {
