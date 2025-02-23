@@ -4,135 +4,131 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.chatapptest.SessionProvider
-import com.example.chatapptest.database.firestore.FireStoreUserDao
+
 import com.example.chatapptest.database.model.UserData
 import com.example.chatapptest.ui.Eror.ViewEror
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 class RegisterViewModel : ViewModel() {
+
     val isLoading = MutableLiveData<Boolean>()
+    val messageLiveData = MutableLiveData<ViewEror>()
 
-    val MessageLiveData = MutableLiveData<ViewEror>()
+    // LiveData for input fields
+    val userName = MutableLiveData<String>()
+    val userEmail = MutableLiveData<String>()
+    val userPassword = MutableLiveData<String>()
+    val userPasswordConfirm = MutableLiveData<String>()
 
-    //liveDataForText
-    val UserName = MutableLiveData<String>()
-    val UserEmail = MutableLiveData<String>()
-    val UserPassword = MutableLiveData<String>()
-    val UserPasswordConfirm = MutableLiveData<String>()
 
-    //LiveDataForTextEror
-    val UserNameEror = MutableLiveData<String?>()
-    val UserEmailEror = MutableLiveData<String?>()
-    val UserPasswordEror = MutableLiveData<String?>()
-    val UserPasswordConfirmEror = MutableLiveData<String?>()
+    val userNameError = MutableLiveData<String?>()
+    val userEmailError = MutableLiveData<String?>()
+    val userPasswordError = MutableLiveData<String?>()
+    val userPasswordConfirmError = MutableLiveData<String?>()
 
     val events = MutableLiveData<ResgisterViewEvent>()
 
-    val auth = FirebaseAuth.getInstance()
+    private val auth: FirebaseAuth = Firebase.auth
 
     fun registerUser() {
-        if (!ValidForm())
+        if (!isValidForm()) return
 
-            return
-                 isLoading.value = true
+        isLoading.value = true
+        viewModelScope.launch {
+            try {
 
-                 auth.createUserWithEmailAndPassword(UserEmail.value!!, UserPassword.value!!)
-                    .addOnCompleteListener {
-                        if (it.isSuccessful) {
-                            InsetInFireStore(it.result.user?.uid)
+                val result = auth.createUserWithEmailAndPassword(
+                    userEmail.value!!,
+                    userPassword.value!!
+                ).await()
 
-//                            viewLiveEror.postValue(
-//                                ViewEror(message = "Registration successful. UID: ${task.result?.user?.uid}"))
-                        } else {
-                            isLoading.value = false
-                            MessageLiveData.postValue(
-                                ViewEror(message = it.exception?.localizedMessage)
-                            )
-                        }
-                    }
+                val uid = result.user?.uid
+                insertInFirestore(uid)
+            } catch (e: Exception) {
+                isLoading.value = false
+                messageLiveData.postValue(
+                    ViewEror(message = e.localizedMessage)
+                )
             }
-
-
-
-
-    fun ValidForm(): Boolean {
-        var isValid = true
-        if (UserName.value.isNullOrEmpty()) {
-            UserNameEror.postValue("Enter User Name")
-            var isValid = false
-        } else {
-            UserNameEror.postValue(null)
         }
-        if (UserEmail.value.isNullOrEmpty()) {
-            UserEmailEror.postValue("Enter ur UserEmail")
-            var isValid = false
-        } else {
-            UserEmailEror.postValue(null)
-        }
-        if (UserPassword.value.isNullOrEmpty()) {
-            UserPasswordEror.postValue("Enter ur UserPassword")
-            var isValid = false
-        } else {
-            UserPasswordEror.postValue(null)
-        }
-        if (UserPasswordConfirm.value.isNullOrEmpty() ||
-            UserPasswordConfirm.value != UserPassword.value
-        ) {
-            UserPasswordConfirmEror.postValue("Password doesnt Match")
-            var isValid = false
-        } else {
-            UserPasswordConfirmEror.postValue(null)
-        }
-        return isValid
-
     }
 
+    private fun isValidForm(): Boolean {
+        var isValid = true
 
+        if (userName.value.isNullOrEmpty()) {
+            userNameError.postValue("Enter User Name")
+            isValid = false
+        } else {
+            userNameError.postValue(null)
+        }
 
-    fun InsetInFireStore(uid:String?){
+        if (userEmail.value.isNullOrEmpty()) {
+            userEmailError.postValue("Enter your Email")
+            isValid = false
+        } else {
+            userEmailError.postValue(null)
+        }
+
+        if (userPassword.value.isNullOrEmpty()) {
+            userPasswordError.postValue("Enter your Password")
+            isValid = false
+        } else {
+            userPasswordError.postValue(null)
+        }
+
+        if (userPasswordConfirm.value.isNullOrEmpty() ||
+            userPasswordConfirm.value != userPassword.value
+        ) {
+            userPasswordConfirmError.postValue("Passwords do not match")
+            isValid = false
+        } else {
+            userPasswordConfirmError.postValue(null)
+        }
+
+        return isValid
+    }
+
+    private fun insertInFirestore(uid: String?) {
+        if (uid == null) {
+            isLoading.value = false
+            messageLiveData.postValue(ViewEror(message = "User ID is null"))
+            return
+        }
+
         val user = UserData(
             id = uid,
-            userName = UserName.value,
-            email = UserPassword.value
+            userName = userName.value,
+            email = userEmail.value
         )
-        FireStoreUserDao.createuser(
-            user
-        ){
-            isLoading.value = false
-            if(it.isSuccessful){
-                MessageLiveData.postValue(
+
+        viewModelScope.launch {
+            try {
+                FireStoreUserDao.createuser(user)
+                isLoading.value = false
+                messageLiveData.postValue(
                     ViewEror(
                         message = "Registration Success",
-                        psoActionName = "okee",
-                        posActionClick =
-                        {
+                        psoActionName = "OK",
+                        posActionClick = {
                             SessionProvider.user = user
                             events.postValue(ResgisterViewEvent.NavigateToHome)
-
-                            //Save User
-                            //go to login activity
-                        },isCancelable = false
-
+                        },
+                        isCancelable = false
                     )
                 )
-            }else{
-                MessageLiveData.postValue(
-                    ViewEror(message = it.exception?.localizedMessage))
-
+            } catch (e: Exception) {
+                isLoading.value = false
+                messageLiveData.postValue(ViewEror(message = e.localizedMessage))
             }
-
         }
-
-
     }
 
-    fun navigateToLogin(){
+    fun navigateToLogin() {
         events.postValue(ResgisterViewEvent.NavigatetoLogin)
     }
-
 }

@@ -34,7 +34,7 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun subscribeToLiveData() {
-        viewmodel.MessageLiveData.observe(this){
+        viewmodel.messageLiveData.observe(this){
             showmessage(it.message ?: "something went wrong",
                 posActionName = "Okee",
                 posAction = it.posActionClick,

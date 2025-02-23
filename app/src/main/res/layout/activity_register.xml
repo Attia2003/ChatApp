@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                app:Binder="@{vm.UserNameEror}"
+                app:Binder="@{vm.userNameError}"
                 android:id="@+id/input_Name_label">
                 <EditText
                     android:id="@+id/User_Name"
@@ -53,7 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                app:Binder="@{vm.userEmailEror}"
+                app:Binder="@{vm.userEmailError}"
                 android:id="@+id/input_Email_label">
                 <EditText
                     android:id="@+id/User_Email"
@@ -67,7 +67,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                app:Binder="@{vm.UserPasswordEror}"
+                app:Binder="@{vm.userPasswordError}"
                 android:id="@+id/input_Paassword_label">
                 <EditText
                     android:id="@+id/User_password"
@@ -81,7 +81,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:Binder="@{vm.UserPasswordConfirmEror}"
+                app:Binder="@{vm.userPasswordConfirmError}"
                 android:layout_marginBottom="8dp"
                 android:id="@+id/input_Paassword_confirm_label">
                 <EditText

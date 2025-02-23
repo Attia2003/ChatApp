@@ -1,26 +1,21 @@
-package com.example.chatapptest.database.firestore
-
 import com.example.chatapptest.database.model.UserData
-import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.tasks.await
 
 object FireStoreUserDao {
-    public fun getusercollectiion(): CollectionReference {
-        val database = Firebase.firestore
-         return  database.collection("users")
+    fun getusercollectiion(): CollectionReference {
+        return Firebase.firestore.collection("users")
     }
 
-    fun createuser(user : UserData , onCompleteListener: OnCompleteListener<Void>) {
-
-        val DocRef = getusercollectiion().document(user.id?:"")
-           DocRef.set(user).addOnCompleteListener(onCompleteListener)
+    suspend fun createuser(user: UserData) {
+        val docRef = getusercollectiion().document(user.id ?: "")
+        docRef.set(user).await()
     }
-    fun getuserbyid(uid: String?, onCompleteListener: OnCompleteListener<DocumentSnapshot>){
-        getusercollectiion().document(uid?:"")
-            .get().addOnCompleteListener(onCompleteListener)
 
+    suspend fun getuserbyid(uid: String?): DocumentSnapshot? {
+        return getusercollectiion().document(uid ?: "").get().await()
     }
 }
