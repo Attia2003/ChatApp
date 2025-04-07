@@ -13,6 +13,9 @@
         android:theme="@style/Theme.ChatAppTest"
         tools:targetApi="31">
         <activity
+            android:name=".ui.chatpage.ChatActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.room.AddRoomActivity"
             android:exported="false" />
         <activity

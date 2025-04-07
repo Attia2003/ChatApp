@@ -18,7 +18,7 @@ class AddRoomViewModel: ViewModel()  {
         val roomNameErors = MutableLiveData<String?>()
         val roomDescriptionErors = MutableLiveData<String?>()
 
-        val messageLiveData = MutableLiveData<ViewEror>()
+        val messageLiveData = SingleLiveEvent<ViewEror>()
 
         val categories = CategoryData.getCatogries()
         var selectedCategory = categories[0]

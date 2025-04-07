@@ -22,8 +22,7 @@ class CatogriesAdapter (val items : List<CategoryData>):BaseAdapter(){
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val  itmeviewholder : Itemviewholder
-
-            if(convertView ==null ){
+          if(convertView ==null ){
 
                 val itembinding = ItemSpinerBinding.inflate(LayoutInflater.
                 from(parent?.context),parent,false)

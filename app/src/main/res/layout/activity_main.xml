@@ -17,7 +17,32 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <Toolbar
+            android:id="@+id/headtoolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="parent">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Home"
+                android:layout_gravity="center"
+                android:textSize="25dp"
+                android:textColor="@color/black" />
 
+                <ImageView
+                    android:id="@+id/logout"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/logout"
+                    android:onClick="@{()->vm.Logout()}"
+                    />
+
+
+
+
+        </Toolbar>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:layout_width="60dp"
             android:layout_height="60dp"
@@ -30,12 +55,16 @@
             android:src="@drawable/add_icon"
             android:onClick="@{()->vm.GoToAddRoom()}"
             />
-
-
-
-
-
-
+        
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/roooms_recyler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/headtoolbar"
+            app:spanCount="2"
+            tools:listitem="@layout/item_room"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

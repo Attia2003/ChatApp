@@ -3,6 +3,7 @@ package com.example.chatapptest.database.firestore
 import com.example.chatapptest.database.model.RommData
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -32,5 +33,10 @@ object RoomDao {
            )
 
             docrRef.set(room).addOnCompleteListener(onCompleteListener)
+    }
+
+    fun getALLRoomms(onCompleteListener: OnCompleteListener<QuerySnapshot>) {
+        getRoom().get()
+            .addOnCompleteListener(onCompleteListener)
     }
 }
