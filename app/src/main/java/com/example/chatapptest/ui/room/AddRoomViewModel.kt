@@ -38,6 +38,7 @@ class AddRoomViewModel: ViewModel()  {
                 }
 
                 isCreatingRoom.postValue(true)
+
                 Log.d("CreateRoom", "Validation passed, sending request...")
 
                 RoomDao.creatRoom(

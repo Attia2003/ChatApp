@@ -1,10 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     tools:context=".ui.chatpage.ChatActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <data>
+        <variable
+            name="vm"
+            type="com.example.chatapptest.ui.chatpage.ChatViewModel" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="15dp"
+        >
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/messagerecyler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:layout_constraintBottom_toTopOf="@id/inputtextmessage"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <EditText
+        android:id="@+id/inputtextmessage"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        android:padding="13dp"
+        android:layout_marginEnd="18dp"
+        android:background="@drawable/messsagebackground"
+        app:layout_constraintEnd_toStartOf="@id/iconsendmessage"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:inputType="text"/>
+
+
+    <ImageView
+        android:id="@+id/iconsendmessage"
+        android:layout_width="40dp"
+        android:layout_height="45dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/ic_send"
+        android:background="@drawable/send_messa_back"
+        android:scaleType="center"
+        />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

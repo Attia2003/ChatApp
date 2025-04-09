@@ -9,8 +9,12 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.example.chatapptest.R
+import com.example.chatapptest.database.firestore.RoomDao
+import com.example.chatapptest.database.model.RommData
 import com.example.chatapptest.databinding.ActivityMainBinding
+import com.example.chatapptest.ui.Constant
 import com.example.chatapptest.ui.Eror.showmessage
+import com.example.chatapptest.ui.chatpage.ChatActivity
 import com.example.chatapptest.ui.login.LoginActivity
 import com.example.chatapptest.ui.room.AddRoomActivity
 
@@ -94,9 +98,17 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         binding.rooomsRecyler.adapter = recadapter
-
         binding.vm = viewModel
         binding.lifecycleOwner = this
+        recadapter.onItemClickListener= RoomsAdapterRecyler.OnItemClickListener { position, room ->
+           NavigateToRommChat(room)
+        }
+
+    }
+    fun NavigateToRommChat(room: RommData){
+        val intent = Intent(this, ChatActivity::class.java)
+        intent.putExtra(Constant.EXTRA_ROOM,room)
+        startActivity(intent)
 
     }
 
