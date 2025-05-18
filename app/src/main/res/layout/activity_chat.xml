@@ -32,6 +32,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:padding="13dp"
         android:layout_marginEnd="18dp"
+        android:text="@={vm.messageuserlivedata}"
         android:background="@drawable/messsagebackground"
         app:layout_constraintEnd_toStartOf="@id/iconsendmessage"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -47,6 +48,7 @@
         android:src="@drawable/ic_send"
         android:background="@drawable/send_messa_back"
         android:scaleType="center"
+        android:onClick="@{()->vm.sendmessage()}"
         />
 
 

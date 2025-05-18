@@ -8,7 +8,7 @@ data class CategoryData(
     val imagesres : Int
 ){
     companion object {
-        fun getCatogries() = listOf<CategoryData>(
+        fun getCatogries() = listOf(
             CategoryData(1, "Sports", R.drawable.sports),
             CategoryData(2, "music", R.drawable.music),
             CategoryData(3, "Movie", R.drawable.movie),
