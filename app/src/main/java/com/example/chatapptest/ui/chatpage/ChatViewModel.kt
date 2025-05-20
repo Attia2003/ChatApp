@@ -2,6 +2,7 @@ package com.example.chatapptest.ui.chatpage
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.chatapptest.database.firestore.MessageDao
 import com.example.chatapptest.database.firestore.RoomDao
 import com.example.chatapptest.database.model.RommData
 
