@@ -2,6 +2,7 @@ package com.example.chatapptest.ui.chatpage
 
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -28,6 +29,7 @@ class ChatActivity : AppCompatActivity() {
         }
         initview()
         initparams()
+        subscribeToLiveData()
 
     }
 
@@ -45,6 +47,14 @@ class ChatActivity : AppCompatActivity() {
            intent.getParcelableExtra(Constant.EXTRA_ROOM,) as RommData?
        }
         viewModel.room = room
-
     }
+
+    fun subscribeToLiveData(){
+        viewModel.ToastLiveData.observe(this){
+          Toast.makeText(this,it, Toast.LENGTH_SHORT).show()
+
+        }
+    }
+
+
 }
