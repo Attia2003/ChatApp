@@ -14,5 +14,10 @@ data class MessageData(
     companion object{
         const val CollectionMessageName = "messages"
     }
+
+    fun formattime(){
+
+    }
+
 }
  
