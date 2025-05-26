@@ -32,12 +32,12 @@ class ChatActivity : AppCompatActivity() {
         subscribeToLiveData()
 
     }
-
+    val adapter = MessageAdapter(mutableListOf())
     fun initview(){
         binding = DataBindingUtil.setContentView(this,R.layout.activity_chat)
         binding.vm = viewModel
         binding.lifecycleOwner = this
-
+        binding.messagerecyler.adapter = adapter
     }
     fun initparams(){
 
@@ -46,14 +46,17 @@ class ChatActivity : AppCompatActivity() {
        } else {
            intent.getParcelableExtra(Constant.EXTRA_ROOM,) as RommData?
        }
-        viewModel.room = room
+        viewModel.changeroom(room)
     }
 
     fun subscribeToLiveData(){
         viewModel.ToastLiveData.observe(this){
           Toast.makeText(this,it, Toast.LENGTH_SHORT).show()
-
         }
+        viewModel.newmessagelivedata.observe(this){
+           adapter.addnewmessage(it)
+        }
+
     }
 
 

@@ -1,23 +1,29 @@
 package com.example.chatapptest.database.model
 
 import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 data class MessageData(
-    var id : String ?=null,
-    val content : String ? = null,
-    val timestamp : Timestamp,
-    val senderName  : String?=null,
-    val senderId : String?=null,
-    val roomID : String?=null
+    var id: String? = null,
+    var content: String? = null,
+    var timestamp: Timestamp? = null,
+    var senderName: String? = null,
+    var senderId: String? = null,
+    var roomID: String? = null
 )
 {
     companion object{
         const val CollectionMessageName = "messages"
     }
 
-    fun formattime(){
+    fun formattime() : String{
+        val simpleDateFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
+         return simpleDateFormat.format(timestamp?.toDate())
     }
-
 }
+
+
+
  
