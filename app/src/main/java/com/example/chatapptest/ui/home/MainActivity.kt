@@ -3,30 +3,29 @@ package com.example.chatapptest.ui.home
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import com.example.chatapptest.R
-import com.example.chatapptest.database.firestore.RoomDao
 import com.example.chatapptest.database.model.RommData
 import com.example.chatapptest.databinding.ActivityMainBinding
 import com.example.chatapptest.ui.Constant
-import com.example.chatapptest.ui.Eror.showmessage
+import com.example.chatapptest.ui.Error.showmessage
 import com.example.chatapptest.ui.chatpage.ChatActivity
 import com.example.chatapptest.ui.login.LoginActivity
 import com.example.chatapptest.ui.room.AddRoomActivity
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
-    lateinit var viewModel: HomeViewModel
+    private val viewModel: HomeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
         initview()
         subscribeToLiveData()
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -95,8 +94,6 @@ class MainActivity : AppCompatActivity() {
 
     fun initview(){
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-
-        viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         binding.rooomsRecyler.adapter = recadapter
         binding.vm = viewModel
         binding.lifecycleOwner = this

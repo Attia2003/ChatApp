@@ -2,4 +2,22 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="chat_primary">#20A090</color>
+    <color name="chat_primary_dark">#0C6F64</color>
+    <color name="chat_primary_soft">#DDF4F0</color>
+    <color name="chat_background_start">#F7FBFB</color>
+    <color name="chat_background_end">#EEF7F5</color>
+    <color name="chat_surface">#FFFFFFFF</color>
+    <color name="chat_surface_alt">#F6FAF9</color>
+    <color name="chat_text_primary">#182321</color>
+    <color name="chat_text_secondary">#62706D</color>
+    <color name="chat_text_hint">#8B9794</color>
+    <color name="chat_stroke">#D8E6E2</color>
+    <color name="chat_received_bubble">#F5FAF9</color>
+    <color name="chat_received_bubble_stroke">#D6E7E2</color>
+    <color name="chat_sent_bubble">#0C6F64</color>
+    <color name="chat_sent_text">#FFFFFFFF</color>
+    <color name="chat_online">#35B77A</color>
+    <color name="chat_error_bg">#FCEDEC</color>
+    <color name="chat_error_text">#9C3737</color>
 </resources>

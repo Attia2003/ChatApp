@@ -3,26 +3,25 @@
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProvider
 import com.example.chatapptest.ui.home.MainActivity
 import com.example.chatapptest.R
 import com.example.chatapptest.databinding.ActivityLoginBinding
-import com.example.chatapptest.ui.Eror.showmessage
+import com.example.chatapptest.ui.Error.showmessage
 import com.example.chatapptest.ui.register.RegisterActivity
+import dagger.hilt.android.AndroidEntryPoint
 
+ @AndroidEntryPoint
  class LoginActivity : AppCompatActivity() {
      lateinit var viewbinding: ActivityLoginBinding
-     lateinit var viewmodel: LoginViewModel
+     private val viewmodel: LoginViewModel by viewModels()
      override fun onCreate(savedInstanceState: Bundle?) {
          super.onCreate(savedInstanceState)
          enableEdgeToEdge()
-         viewbinding =
-                 ActivityLoginBinding.inflate(layoutInflater)
-         setContentView(viewbinding.root)
          initView()
          subscribeToLiveData()
          ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -70,7 +69,6 @@ import com.example.chatapptest.ui.register.RegisterActivity
                  this,
                  R.layout.activity_login
              )
-             viewmodel = ViewModelProvider(this)[LoginViewModel::class.java]
              viewbinding.vmlogin = viewmodel
              viewbinding.lifecycleOwner = this
 

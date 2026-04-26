@@ -1,56 +1,58 @@
 package com.example.chatapptest.ui.home
-import android.util.Log
+
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.chatapptest.SessionProvider
-import com.example.chatapptest.database.firestore.RoomDao
+import androidx.lifecycle.viewModelScope
 import com.example.chatapptest.database.model.RommData
-import com.example.chatapptest.ui.Eror.ViewEror
+import com.example.chatapptest.domain.usecase.auth.LogoutUseCase
+import com.example.chatapptest.domain.usecase.room.GetRoomsUseCase
+import com.example.chatapptest.ui.Error.ViewEror
 import com.example.chatapptest.util.SingleLiveEvent
-import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class HomeViewModel : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val getRoomsUseCase: GetRoomsUseCase,
+    private val logoutUseCase: LogoutUseCase
+) : ViewModel() {
+    
     val event = SingleLiveEvent<HomeViewEvent>()
     val messageLiveData = SingleLiveEvent<ViewEror>()
     val roomsLiveData = MutableLiveData<List<RommData>>()
 
-    fun GoToAddRoom(){
-        Log.d("HomeViewModelstart", "FloatingActionButton clicked!")
-            event.postValue(HomeViewEvent.NavigateToAddRoom)
-
+    fun GoToAddRoom() {
+        event.postValue(HomeViewEvent.NavigateToAddRoom)
     }
-    fun loadrooms(){
-        RoomDao.getALLRoomms{
-          if (!it.isSuccessful){
-
-              return@getALLRoomms
-
-          }
-            val rooms = it.result.toObjects(RommData::class.java)
-            roomsLiveData.postValue(rooms)
-
-
+    
+    fun loadrooms() {
+        viewModelScope.launch {
+            val result = getRoomsUseCase()
+            if (result.isSuccess) {
+                val rooms = result.getOrNull() ?: emptyList()
+                roomsLiveData.postValue(rooms)
+            } else {
+                // Optionally show error
+                val error = result.exceptionOrNull()
+                messageLiveData.postValue(
+                    ViewEror(message = error?.localizedMessage ?: "Failed to load rooms")
+                )
+            }
         }
     }
 
-    fun Logout(){
-
+    fun Logout() {
         messageLiveData.postValue(
             ViewEror(
-                message = " are u sure u want log out ",
+                message = "Are you sure you want to log out?",
                 psoActionName = "OK",
                 posActionClick = {
-                    FirebaseAuth.getInstance().signOut()
-                    SessionProvider.user = null
+                    logoutUseCase()
                     event.postValue(HomeViewEvent.NavigateToLogin)
                 },
-                negActionName = "Cancel",
-
+                negActionName = "Cancel"
             )
         )
-
-
-
     }
-
 }

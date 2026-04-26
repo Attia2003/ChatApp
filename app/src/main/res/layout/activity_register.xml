@@ -44,7 +44,7 @@
                     android:id="@+id/User_Name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@={vm.UserName}"
+                    android:text="@={vm.userName}"
                     android:hint="Enter ur Name "
                     android:inputType="text"/>
 
@@ -59,7 +59,7 @@
                     android:id="@+id/User_Email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@={vm.UserEmail}"
+                    android:text="@={vm.userEmail}"
                     android:hint="Enter ur Email "
                     android:inputType="textEmailAddress"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -75,7 +75,7 @@
                     android:layout_height="wrap_content"
                     android:hint="Enter ur password "
                     android:minEms="6"
-                    android:text="@={vm.UserPassword}"
+                    android:text="@={vm.userPassword}"
                     android:inputType="numberPassword"/>
             </com.google.android.material.textfield.TextInputLayout>
             <com.google.android.material.textfield.TextInputLayout
@@ -89,7 +89,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Password Confirm"
-                    android:text="@={vm.UserPasswordConfirm}"
+                    android:text="@={vm.userPasswordConfirm}"
                     android:minEms="6"
                     android:inputType="numberPassword"/>
             </com.google.android.material.textfield.TextInputLayout>

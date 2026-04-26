@@ -1,3 +1,5 @@
+package com.example.chatapptest.database.firestore
+
 import com.example.chatapptest.database.model.UserData
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot

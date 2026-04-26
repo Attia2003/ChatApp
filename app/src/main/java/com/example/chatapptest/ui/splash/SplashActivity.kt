@@ -14,11 +14,13 @@ import com.example.chatapptest.R
 import com.example.chatapptest.ui.home.MainActivity
 import com.example.chatapptest.ui.login.LoginActivity
 import com.example.chatapptest.ui.register.RegisterActivity
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class SplashActivity : AppCompatActivity() {
-    val viewmodel : SplashViewModel by viewModels()
+    private val viewmodel : SplashViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

@@ -1,47 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    >
     <data>
         <variable
             name="message"
             type="com.example.chatapptest.database.model.MessageData" />
     </data>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="6dp"
-        android:gravity="start"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{message.senderName}"
-            tools:text="attia"
-            />
-        <TextView
-            android:id="@+id/message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="vertical"
+        android:paddingStart="40dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="4dp"
+        android:paddingBottom="6dp">
 
-            android:background="@drawable/receive_message_back"
-            android:textColor="@color/white"
-            android:text="@{message.content}"
-            tools:text="dfghjkl';lkkndredfcghjkP/r[poiuytbn"/>
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/messageCard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/chat_sent_bubble"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="1dp">
+
+            <TextView
+                android:id="@+id/message_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="420dp"
+                android:paddingStart="16dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="12dp"
+                android:text="@{message.contentText()}"
+                android:textColor="@color/chat_sent_text"
+                android:textSize="15sp"
+                tools:text="Perfect. I'll keep the teal branding and just refine the hierarchy." />
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/date_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="6dp"
             android:text="@{message.formattime()}"
-            tools:text="1:12"/>
+            android:textColor="@color/chat_text_hint"
+            android:textSize="11sp"
+            tools:text="09:43 AM" />
     </LinearLayout>
-
-
-
-
 
 </layout>

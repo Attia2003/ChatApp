@@ -1,71 +1,186 @@
 package com.example.chatapptest.ui.chatpage
 
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import com.example.chatapptest.SessionProvider
-import com.example.chatapptest.database.firestore.MessageDao
-import com.example.chatapptest.database.firestore.RoomDao
+import androidx.lifecycle.viewModelScope
+import com.example.chatapptest.R
+import com.example.chatapptest.data.session.SessionManager
+import com.example.chatapptest.database.model.CategoryData
 import com.example.chatapptest.database.model.MessageData
 import com.example.chatapptest.database.model.RommData
+import com.example.chatapptest.domain.usecase.message.ObserveMessagesUseCase
+import com.example.chatapptest.domain.usecase.message.SendMessageUseCase
 import com.example.chatapptest.util.SingleLiveEvent
 import com.google.firebase.Timestamp
-import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.EventListener
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ChatViewModel  : ViewModel(){
+@HiltViewModel
+class ChatViewModel @Inject constructor(
+    private val sendMessageUseCase: SendMessageUseCase,
+    private val observeMessagesUseCase: ObserveMessagesUseCase,
+    private val sessionManager: SessionManager
+) : ViewModel() {
 
-    var room: RommData?=null
-    val messageuserlivedata = MutableLiveData<String>()
+    var room: RommData? = null
+        private set
+
+    val messageuserlivedata = MutableLiveData("")
     val ToastLiveData = SingleLiveEvent<String>()
-    val newmessagelivedata = SingleLiveEvent<List<MessageData>>()
+    val messagesLiveData = MutableLiveData<List<MessageData>>(emptyList())
+    val roomTitle = MutableLiveData("")
+    val roomStatus = MutableLiveData("")
+    val roomAvatarRes = MutableLiveData(R.drawable.ic_chat_empty)
+    val isInitialLoading = MutableLiveData(true)
+    val isSending = MutableLiveData(false)
+    val canSendMessage = MutableLiveData(false)
+    val showTypingIndicator = MutableLiveData(false)
+    val inlineErrorMessage = MutableLiveData<String?>(null)
+    val showEmptyState = MutableLiveData(false)
+    val showErrorState = MutableLiveData(false)
+    val showInlineErrorChip = MutableLiveData(false)
 
-    fun sendmessage(){
-        if (messageuserlivedata.value.isNullOrBlank()) return
-        val message = MessageData(
-            content = messageuserlivedata.value,
-            timestamp = Timestamp.now(),
-            senderId = SessionProvider.user?.userName,
-            senderName = SessionProvider.user?.id ,
-            roomID =   room?.id,
-        )
-        MessageDao.sendmessage(message){
-            if (it.isSuccessful){
-                messageuserlivedata.value = ""
-                return@sendmessage
-            }
-            ToastLiveData.value = "Something Went Wrong , Check Ur Network "
+    private var hasMessages = false
+    private var observeMessagesJob: Job? = null
+
+    private val draftObserver = Observer<String?> {
+        updateComposerState()
+        updateStateVisibility()
+    }
+    private val sendingObserver = Observer<Boolean> {
+        updateComposerState()
+    }
+
+    init {
+        messageuserlivedata.observeForever(draftObserver)
+        isSending.observeForever(sendingObserver)
+        updateComposerState()
+        updateStateVisibility()
+    }
+
+    val currentUserId: String?
+        get() = sessionManager.currentUser.value?.id
+
+    fun sendmessage() {
+        if (isSending.value == true) return
+
+        val content = messageuserlivedata.value?.trim()
+        val currentUser = sessionManager.currentUser.value
+        val roomId = room?.id
+
+        if (content.isNullOrBlank()) return
+        if (currentUser?.id.isNullOrBlank() || roomId.isNullOrBlank()) {
+            ToastLiveData.value = "Unable to send message right now"
+            return
         }
 
-    }
-    fun changeroom(room :RommData?){
-        this.room = room
-        listentomessages()
+        val message = MessageData(
+            content = content,
+            timestamp = Timestamp.now(),
+            senderId = currentUser?.id,
+            senderName = currentUser?.userName,
+            roomID = roomId,
+        )
 
-    }
+        isSending.value = true
+        inlineErrorMessage.value = null
+        updateStateVisibility()
 
-    fun listentomessages(){
-        MessageDao.getmessagecollec(room?.id?:"")
-            .addSnapshotListener(EventListener { value, error ->
-//                    value?.documents?.forEach {
-//                        val message = it.toObject(MessageData::class.java) // bt work on all doc return
-//                    }
-
-                    val newmessages = mutableListOf<MessageData>()
-                    // bt work on single doc return (be check 3la el be7sl le change )
-                    value?.documentChanges?.forEach {
-                            if (it.type == DocumentChange.Type.ADDED){
-                               val message =  it.document.toObject(MessageData::class.java)
-                                newmessages.add(message)
-                            }else if (it.type == DocumentChange.Type.MODIFIED){
-
-                            }else if (it.type == DocumentChange.Type.REMOVED)
-                           it.type
-                    }
-                    newmessagelivedata.value = newmessages
+        viewModelScope.launch {
+            val result = sendMessageUseCase(message)
+            isSending.value = false
+            if (result.isSuccess) {
+                messageuserlivedata.value = ""
+            } else {
+                val errorMessage = "Message failed to send. Check your network and try again."
+                inlineErrorMessage.value = errorMessage
+                updateStateVisibility()
+                ToastLiveData.value = errorMessage
             }
-
-            )
-
+        }
     }
 
+    fun changeroom(room: RommData?) {
+        this.room = room
+        roomTitle.value = room?.title?.trim().orEmpty()
+        roomStatus.value = room?.decription?.trim().orEmpty()
+        roomAvatarRes.value = CategoryData.getcatogriesbyid(room?.categoryid)
+        updateComposerState()
+        listentomessages()
+    }
+
+    fun retryLoading() {
+        if (room?.id.isNullOrBlank()) {
+            ToastLiveData.value = "Unable to reload this chat right now"
+            return
+        }
+        listentomessages()
+    }
+
+    private fun listentomessages() {
+        observeMessagesJob?.cancel()
+
+        val roomId = room?.id
+        if (roomId.isNullOrBlank()) {
+            messagesLiveData.value = emptyList()
+            hasMessages = false
+            isInitialLoading.value = false
+            inlineErrorMessage.value = "Conversation details are unavailable right now."
+            updateStateVisibility()
+            return
+        }
+
+        if (!hasMessages) {
+            isInitialLoading.value = true
+        }
+        inlineErrorMessage.value = null
+        updateStateVisibility()
+
+        observeMessagesJob = viewModelScope.launch {
+            observeMessagesUseCase(roomId)
+                .catch { error ->
+                    isInitialLoading.value = false
+                    inlineErrorMessage.value =
+                        "Unable to load messages. Check your connection and try again."
+                    updateStateVisibility()
+                    ToastLiveData.value =
+                        "Error loading messages: ${error.localizedMessage ?: "Unknown error"}"
+                }
+                .collect { messages ->
+                    messagesLiveData.value = messages
+                    hasMessages = messages.isNotEmpty()
+                    isInitialLoading.value = false
+                    inlineErrorMessage.value = null
+                    updateStateVisibility()
+                }
+        }
+    }
+
+    private fun updateComposerState() {
+        val hasDraft = !messageuserlivedata.value.isNullOrBlank()
+        val readyToSend = hasDraft && isSending.value != true && !room?.id.isNullOrBlank()
+        showTypingIndicator.value = hasDraft && isSending.value != true
+        canSendMessage.value = readyToSend
+    }
+
+    private fun updateStateVisibility() {
+        val hasError = !inlineErrorMessage.value.isNullOrBlank()
+        val hasDraft = !messageuserlivedata.value.isNullOrBlank()
+        val loading = isInitialLoading.value == true
+
+        showErrorState.value = !loading && hasError && !hasMessages
+        showInlineErrorChip.value = !loading && hasError && hasMessages
+        showEmptyState.value = !loading && !hasError && !hasMessages && !hasDraft
+    }
+
+    override fun onCleared() {
+        messageuserlivedata.removeObserver(draftObserver)
+        isSending.removeObserver(sendingObserver)
+        observeMessagesJob?.cancel()
+        super.onCleared()
+    }
 }

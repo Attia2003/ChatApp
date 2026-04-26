@@ -2,73 +2,91 @@ package com.example.chatapptest.ui.chatpage
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.example.chatapptest.SessionProvider
 import com.example.chatapptest.database.model.MessageData
 import com.example.chatapptest.databinding.ItemReceiveBinding
 import com.example.chatapptest.databinding.ItemSentBinding
-import com.example.chatapptest.ui.home.RoomsAdapterRecyler
 
-class MessageAdapter (var messages : MutableList<MessageData>) :RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class MessageAdapter(
+    private val currentUserIdProvider: () -> String?
+) : ListAdapter<MessageData, RecyclerView.ViewHolder>(MessageDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        if (viewType==messageType.send.value){
-            val itembinding = ItemSentBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-                return SentMessageViewHolder(itembinding)
-        }else{
-            val itembinding = ItemReceiveBinding.inflate(LayoutInflater.from(parent.context),parent,false)
-            return ReceiveMessageViewHolder(itembinding)
+    init {
+        setHasStableIds(true)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == MessageType.SEND.value) {
+            val itemBinding = ItemSentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            SentMessageViewHolder(itemBinding)
+        } else {
+            val itemBinding = ItemReceiveBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            ReceiveMessageViewHolder(itemBinding)
         }
-
     }
 
     override fun getItemViewType(position: Int): Int {
-        val message = messages.get(position)
-        if (message.senderId == SessionProvider.user?.id){
-            return messageType.send.value
-        }else{
-            return messageType.recevie.value
+        val message = getItem(position)
+        return if (message.senderId == currentUserIdProvider()) {
+            MessageType.SEND.value
+        } else {
+            MessageType.RECEIVE.value
         }
     }
 
-    override fun getItemCount(): Int = messages.size
+    override fun getItemId(position: Int): Long {
+        val message = getItem(position)
+        return message.id?.hashCode()?.toLong()
+            ?: "${message.senderId}_${message.timestamp?.seconds}_${message.content}".hashCode().toLong()
+    }
 
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        if (holder is SentMessageViewHolder){
-            holder.bind(messages[position])
-        } else if (holder is ReceiveMessageViewHolder){
-            holder.bind(messages[position])
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val message = getItem(position)
+        if (holder is SentMessageViewHolder) {
+            holder.bind(message)
+        } else if (holder is ReceiveMessageViewHolder) {
+            holder.bind(message)
         }
     }
 
-    fun addnewmessage(newmessages : List<MessageData>){
-          if (newmessages.isEmpty()) return
-            val lastsize = messages.size
-            messages.addAll(newmessages)
-            notifyItemRangeInserted(lastsize,newmessages.size)
+    fun submitMessages(newMessages: List<MessageData>, onCommitted: () -> Unit = {}) {
+        submitList(newMessages.toList(), onCommitted)
     }
 }
 
-class SentMessageViewHolder(val binding: ItemSentBinding) : RecyclerView.ViewHolder(binding.root) {
-    fun bind(message:MessageData){
-       binding.setMessage(message )
-       binding.executePendingBindings()
+class SentMessageViewHolder(
+    private val binding: ItemSentBinding
+) : RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(message: MessageData) {
+        binding.message = message
+        binding.executePendingBindings()
+    }
 }
 
+class ReceiveMessageViewHolder(
+    private val binding: ItemReceiveBinding
+) : RecyclerView.ViewHolder(binding.root) {
 
+    fun bind(message: MessageData) {
+        binding.message = message
+        binding.executePendingBindings()
+    }
 }
 
+private class MessageDiffCallback : DiffUtil.ItemCallback<MessageData>() {
+    override fun areItemsTheSame(oldItem: MessageData, newItem: MessageData): Boolean {
+        return oldItem.id == newItem.id
+    }
 
-class ReceiveMessageViewHolder(val binding: ItemReceiveBinding) : RecyclerView.ViewHolder(binding.root) {
-     fun bind(message:MessageData){
-         binding.setMessage(message )
-         binding.executePendingBindings()
-     }
+    override fun areContentsTheSame(oldItem: MessageData, newItem: MessageData): Boolean {
+        return oldItem == newItem
+    }
 }
 
-enum class messageType(val value:Int) {
-    send(100)
-    , recevie(200)
+enum class MessageType(val value: Int) {
+    SEND(100),
+    RECEIVE(200)
 }

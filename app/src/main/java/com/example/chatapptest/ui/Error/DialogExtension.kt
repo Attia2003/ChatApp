@@ -1,4 +1,4 @@
-package com.example.chatapptest.ui.Eror
+package com.example.chatapptest.ui.Error
 
 import android.app.Activity
 import android.content.DialogInterface

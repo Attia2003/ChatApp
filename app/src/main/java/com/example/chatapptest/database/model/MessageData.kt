@@ -18,9 +18,27 @@ data class MessageData(
     }
 
     fun formattime() : String{
+        val date = timestamp?.toDate() ?: return ""
         val simpleDateFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        return simpleDateFormat.format(date)
+    }
 
-         return simpleDateFormat.format(timestamp?.toDate())
+    fun senderDisplayName(): String {
+        return senderName?.trim().orEmpty().ifBlank { "Guest" }
+    }
+
+    fun senderInitial(): String {
+        return senderDisplayName().firstOrNull()?.toString()?.uppercase(Locale.getDefault()) ?: "?"
+    }
+
+    fun contentText(): String {
+        return content?.trim().orEmpty()
+    }
+
+    fun accessibilityLabel(): String {
+        return listOf(senderDisplayName(), contentText(), formattime())
+            .filter { it.isNotBlank() }
+            .joinToString(", ")
     }
 }
 

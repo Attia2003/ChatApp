@@ -3,19 +3,18 @@ package com.example.chatapptest.ui.register
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.chatapptest.SessionProvider
-
-import com.example.chatapptest.database.model.UserData
-import com.example.chatapptest.ui.Eror.ViewEror
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.example.chatapptest.domain.usecase.auth.RegisterUseCase
+import com.example.chatapptest.ui.Error.ViewEror
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class RegisterViewModel : ViewModel() {
+@HiltViewModel
+class RegisterViewModel @Inject constructor(
+    private val registerUseCase: RegisterUseCase
+) : ViewModel() {
 
-    val isLoading = MutableLiveData<Boolean>()
+    val isLoading = MutableLiveData<Boolean>(false)
     val messageLiveData = MutableLiveData<ViewEror>()
 
     // LiveData for input fields
@@ -24,7 +23,6 @@ class RegisterViewModel : ViewModel() {
     val userPassword = MutableLiveData<String>()
     val userPasswordConfirm = MutableLiveData<String>()
 
-
     val userNameError = MutableLiveData<String?>()
     val userEmailError = MutableLiveData<String?>()
     val userPasswordError = MutableLiveData<String?>()
@@ -32,26 +30,40 @@ class RegisterViewModel : ViewModel() {
 
     val events = MutableLiveData<ResgisterViewEvent>()
 
-    private val auth: FirebaseAuth = Firebase.auth
-
     fun registerUser() {
         if (!isValidForm()) return
 
         isLoading.value = true
         viewModelScope.launch {
-            try {
+            // Parse userName to firstName and lastName
+            val nameParts = (userName.value ?: "").split(" ", limit = 2)
+            val firstName = nameParts.getOrNull(0) ?: ""
+            val lastName = nameParts.getOrNull(1) ?: ""
+            
+            val result = registerUseCase(
+                email = userEmail.value ?: "",
+                password = userPassword.value ?: "",
+                firstName = firstName,
+                lastName = lastName
+            )
 
-                val result = auth.createUserWithEmailAndPassword(
-                    userEmail.value!!,
-                    userPassword.value!!
-                ).await()
+            isLoading.value = false
 
-                val uid = result.user?.uid
-                insertInFirestore(uid)
-            } catch (e: Exception) {
-                isLoading.value = false
+            if (result.isSuccess) {
                 messageLiveData.postValue(
-                    ViewEror(message = e.localizedMessage)
+                    ViewEror(
+                        message = "Registration Success",
+                        psoActionName = "OK",
+                        posActionClick = {
+                            events.postValue(ResgisterViewEvent.NavigateToHome)
+                        },
+                        isCancelable = false
+                    )
+                )
+            } else {
+                val error = result.exceptionOrNull()
+                messageLiveData.postValue(
+                    ViewEror(message = error?.localizedMessage ?: "Registration failed")
                 )
             }
         }
@@ -91,41 +103,6 @@ class RegisterViewModel : ViewModel() {
         }
 
         return isValid
-    }
-
-    private fun insertInFirestore(uid: String?) {
-        if (uid == null) {
-            isLoading.value = false
-            messageLiveData.postValue(ViewEror(message = "User ID is null"))
-            return
-        }
-
-        val user = UserData(
-            id = uid,
-            userName = userName.value,
-            email = userEmail.value
-        )
-
-        viewModelScope.launch {
-            try {
-                FireStoreUserDao.createuser(user)
-                isLoading.value = false
-                messageLiveData.postValue(
-                    ViewEror(
-                        message = "Registration Success",
-                        psoActionName = "OK",
-                        posActionClick = {
-                            SessionProvider.user = user
-                            events.postValue(ResgisterViewEvent.NavigateToHome)
-                        },
-                        isCancelable = false
-                    )
-                )
-            } catch (e: Exception) {
-                isLoading.value = false
-                messageLiveData.postValue(ViewEror(message = e.localizedMessage))
-            }
-        }
     }
 
     fun navigateToLogin() {

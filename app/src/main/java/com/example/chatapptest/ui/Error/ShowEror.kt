@@ -1,4 +1,4 @@
-package com.example.chatapptest.ui.Eror
+package com.example.chatapptest.ui.Error
 
 data class ViewEror(
       val message:String?=null,

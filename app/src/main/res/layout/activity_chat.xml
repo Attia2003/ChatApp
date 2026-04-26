@@ -2,56 +2,467 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     tools:context=".ui.chatpage.ChatActivity">
 
     <data>
+        <import type="android.text.TextUtils" />
+        <import type="android.view.View" />
+
         <variable
             name="vm"
             type="com.example.chatapptest.ui.chatpage.ChatViewModel" />
     </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="15dp"
-        >
+        android:background="@drawable/bg_chat_screen">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/messagerecyler"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/inputtextmessage"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        <LinearLayout
+            android:id="@+id/chat_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="12dp"
+            android:animateLayoutChanges="true"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="960dp">
 
-    <EditText
-        android:id="@+id/inputtextmessage"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        android:padding="13dp"
-        android:layout_marginEnd="18dp"
-        android:text="@={vm.messageuserlivedata}"
-        android:background="@drawable/messsagebackground"
-        app:layout_constraintEnd_toStartOf="@id/iconsendmessage"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:inputType="text"/>
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/chatHeaderCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/chat_surface"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="8dp"
+                app:strokeColor="@color/chat_stroke"
+                app:strokeWidth="1dp">
 
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
 
-    <ImageView
-        android:id="@+id/iconsendmessage"
-        android:layout_width="40dp"
-        android:layout_height="45dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:src="@drawable/ic_send"
-        android:background="@drawable/send_messa_back"
-        android:scaleType="center"
-        android:onClick="@{()->vm.sendmessage()}"
-        />
+                    <androidx.appcompat.widget.AppCompatImageButton
+                        android:id="@+id/chatBackButton"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_chat_avatar"
+                        android:contentDescription="@string/chat_back"
+                        android:foreground="?attr/selectableItemBackgroundBorderless"
+                        android:padding="10dp"
+                        android:tint="@color/chat_text_primary"
+                        app:layout_constraintBottom_toBottomOf="@id/roomAvatarContainer"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/roomAvatarContainer"
+                        app:srcCompat="@drawable/ic_arrow_back_24" />
 
+                    <FrameLayout
+                        android:id="@+id/roomAvatarContainer"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:background="@drawable/bg_chat_avatar"
+                        android:padding="12dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/chatBackButton"
+                        app:layout_constraintTop_toTopOf="parent">
 
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:contentDescription="@string/chat_room_avatar"
+                            android:scaleType="centerInside"
+                            android:src="@{vm.roomAvatarRes}" />
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginEnd="8dp"
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="@id/roomAvatarContainer"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/roomAvatarContainer"
+                        app:layout_constraintTop_toTopOf="@id/roomAvatarContainer">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:fontFamily="sans-serif-medium"
+                            android:maxLines="1"
+                            android:text='@{TextUtils.isEmpty(vm.roomTitle) ? @string/chat_default_room_title : vm.roomTitle}'
+                            android:textColor="@color/chat_text_primary"
+                            android:textSize="18sp"
+                            tools:text="Sports Lounge" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:background="@drawable/bg_chat_status_dot" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:ellipsize="end"
+                                android:fontFamily="sans-serif"
+                                android:maxLines="1"
+                                android:text='@{TextUtils.isEmpty(vm.roomStatus) ? @string/chat_room_status_live : vm.roomStatus}'
+                                android:textColor="@color/chat_text_secondary"
+                                android:textSize="13sp"
+                                tools:text="Live now" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/chatMessageSurface"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="12dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="@color/chat_surface"
+                app:cardCornerRadius="32dp"
+                app:cardElevation="6dp"
+                app:strokeColor="@color/chat_stroke"
+                app:strokeWidth="1dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:animateLayoutChanges="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:animateLayoutChanges="true"
+                        android:orientation="vertical"
+                        android:paddingStart="14dp"
+                        android:paddingTop="16dp"
+                        android:paddingEnd="14dp"
+                        android:paddingBottom="14dp">
+
+                        <TextView
+                            android:id="@+id/inlineErrorChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:background="@drawable/bg_chat_inline_error"
+                            android:paddingStart="14dp"
+                            android:paddingTop="8dp"
+                            android:paddingEnd="14dp"
+                            android:paddingBottom="8dp"
+                            android:text="@{vm.inlineErrorMessage}"
+                            android:textColor="@color/chat_error_text"
+                            android:textSize="12sp"
+                            android:visibility="@{vm.showInlineErrorChip ? View.VISIBLE : View.GONE}"
+                            tools:text="Connection looks unstable. Messages may be delayed."
+                            tools:visibility="visible" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/messagerecyler"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:clipToPadding="false"
+                            android:overScrollMode="never"
+                            android:paddingTop="4dp"
+                            android:paddingBottom="12dp"
+                            tools:listitem="@layout/item_receive" />
+
+                        <LinearLayout
+                            android:id="@+id/typingIndicatorRow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_chat_typing_indicator"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingStart="12dp"
+                            android:paddingTop="8dp"
+                            android:paddingEnd="12dp"
+                            android:paddingBottom="8dp"
+                            android:visibility="@{vm.showTypingIndicator ? View.VISIBLE : View.GONE}"
+                            tools:visibility="visible">
+
+                            <View
+                                android:id="@+id/typingDotOne"
+                                android:layout_width="6dp"
+                                android:layout_height="6dp"
+                                android:background="@drawable/bg_chat_status_dot" />
+
+                            <View
+                                android:id="@+id/typingDotTwo"
+                                android:layout_width="6dp"
+                                android:layout_height="6dp"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_chat_status_dot" />
+
+                            <View
+                                android:id="@+id/typingDotThree"
+                                android:layout_width="6dp"
+                                android:layout_height="6dp"
+                                android:layout_marginStart="4dp"
+                                android:background="@drawable/bg_chat_status_dot" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:text="@string/chat_typing"
+                                android:textColor="@color/chat_primary_dark"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/loadingState"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:visibility="@{vm.isInitialLoading ? View.VISIBLE : View.GONE}"
+                        tools:visibility="visible">
+
+                        <ProgressBar
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:indeterminateTint="@color/chat_primary" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="@string/chat_loading_title"
+                            android:textColor="@color/chat_text_primary"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/chat_loading_message"
+                            android:textColor="@color/chat_text_secondary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/emptyState"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:visibility="@{vm.showEmptyState ? View.VISIBLE : View.GONE}"
+                        tools:visibility="gone">
+
+                        <FrameLayout
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:background="@drawable/bg_chat_state_icon"
+                            android:padding="16dp">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@null"
+                                android:tint="@color/chat_primary_dark"
+                                app:srcCompat="@drawable/ic_chat_empty" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="18dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="@string/chat_empty_title"
+                            android:textColor="@color/chat_text_primary"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:gravity="center"
+                            android:text="@string/chat_empty_message"
+                            android:textAlignment="center"
+                            android:textColor="@color/chat_text_secondary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/errorState"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:visibility="@{vm.showErrorState ? View.VISIBLE : View.GONE}"
+                        tools:visibility="gone">
+
+                        <FrameLayout
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:background="@drawable/bg_chat_state_icon"
+                            android:padding="16dp">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:contentDescription="@null"
+                                android:tint="@color/chat_error_text"
+                                app:srcCompat="@drawable/ic_error_outline_24" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="18dp"
+                            android:fontFamily="sans-serif-medium"
+                            android:text="@string/chat_error_title"
+                            android:textColor="@color/chat_text_primary"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:gravity="center"
+                            android:text="@string/chat_error_message"
+                            android:textAlignment="center"
+                            android:textColor="@color/chat_text_secondary"
+                            android:textSize="13sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/retryButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="18dp"
+                            android:onClick="@{() -> vm.retryLoading()}"
+                            android:text="@string/chat_retry"
+                            android:textAllCaps="false"
+                            android:textColor="@color/white"
+                            app:backgroundTint="@color/chat_primary"
+                            app:cornerRadius="18dp" />
+                    </LinearLayout>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/chatComposerCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardBackgroundColor="@color/chat_surface"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="8dp"
+                app:strokeColor="@color/chat_stroke"
+                app:strokeWidth="1dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/composerInputLayout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/chat_message_hint"
+                        app:boxBackgroundColor="@color/chat_surface_alt"
+                        app:boxBackgroundMode="outline"
+                        app:boxCornerRadiusBottomEnd="20dp"
+                        app:boxCornerRadiusBottomStart="20dp"
+                        app:boxCornerRadiusTopEnd="20dp"
+                        app:boxCornerRadiusTopStart="20dp"
+                        app:boxStrokeColor="@color/chat_primary"
+                        app:endIconMode="clear_text"
+                        app:endIconTint="@color/chat_text_secondary"
+                        app:hintTextColor="@color/chat_text_hint"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/sendButton"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:startIconDrawable="@drawable/ic_chat_input"
+                        app:startIconTint="@color/chat_primary_dark">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputtextmessage"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="sans-serif"
+                            android:imeOptions="actionSend"
+                            android:inputType="textCapSentences|textMultiLine"
+                            android:maxLines="5"
+                            android:minHeight="52dp"
+                            android:text="@={vm.messageuserlivedata}"
+                            android:textColor="@color/chat_text_primary"
+                            android:textColorHint="@color/chat_text_hint"
+                            android:textSize="15sp"
+                            tools:text="Hey everyone, how's it going?" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/sendButton"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:layout_marginStart="12dp"
+                        android:alpha="@{vm.canSendMessage ? 1f : 0.64f}"
+                        android:clickable="true"
+                        android:contentDescription="@string/chat_send"
+                        android:enabled="@{vm.canSendMessage}"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless"
+                        android:onClick="@{() -> vm.sendmessage()}"
+                        app:cardBackgroundColor="@color/chat_primary"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="4dp"
+                        app:layout_constraintBottom_toBottomOf="@id/composerInputLayout"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@id/composerInputLayout">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="@null"
+                                android:tint="@color/white"
+                                android:visibility="@{vm.isSending ? View.GONE : View.VISIBLE}"
+                                app:srcCompat="@drawable/ic_send" />
+
+                            <ProgressBar
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center"
+                                android:indeterminateTint="@color/white"
+                                android:visibility="@{vm.isSending ? View.VISIBLE : View.GONE}" />
+                        </FrameLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
